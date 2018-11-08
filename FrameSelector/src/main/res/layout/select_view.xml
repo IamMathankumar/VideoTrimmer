@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/viewParent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent"
+
+    app:layout_constraintTop_toTopOf="parent">
+
+    <ImageView
+        android:id="@+id/seekRightEnd"
+        android:layout_width="30dp"
+        android:layout_height="0dp"
+        android:background="#20000000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <ImageView
+        android:id="@+id/seekLeftEnd"
+        android:layout_width="30dp"
+        android:layout_height="0dp"
+        android:background="#20000000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <View
+        android:id="@+id/seekLeftDragLimit"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/seekRight"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/seekRight" />
+
+
+    <View
+        android:id="@+id/seekRightDragLimit"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/seekRight"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/seekRight" />
+
+
+    <android.support.v7.widget.AppCompatSeekBar
+        android:id="@+id/mediaProgress"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/seekLeft"
+        app:layout_constraintEnd_toEndOf="@+id/seekRight"
+        android:progressDrawable="@android:color/transparent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:max="100"
+        />
+
+
+    <com.curvegraph.frameselector.DragLine
+        android:id="@+id/seekLeft"
+        android:layout_width="20dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <com.curvegraph.frameselector.DragLine
+        android:id="@+id/seekRight"
+        android:layout_width="20dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <com.curvegraph.frameselector.DrawLine
+        android:id="@+id/seekTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/seekLeft"
+        app:layout_constraintEnd_toEndOf="@id/seekRight"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <com.curvegraph.frameselector.DrawLine
+        android:id="@+id/seekBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/seekLeft"
+        app:layout_constraintEnd_toEndOf="@id/seekRight"
+         />
+
+
+</android.support.constraint.ConstraintLayout>

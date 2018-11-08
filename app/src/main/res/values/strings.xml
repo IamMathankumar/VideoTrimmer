@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Video Trimmer</string>
+    <string name="content_folder_icon">Folder Icon</string>
+
+
+    <string name="msg_playback_ended">playback ended</string>
+    <string name="msg_playback_started">playback started</string>
+    <string name="msg_playback_paused">playback paused</string>
+    <string name="trim">Trim</string>
+</resources>

@@ -1,0 +1,11 @@
+<resources>
+	<dimen name="folderIconSize">39.6dp</dimen>
+	<dimen name="folderTextMargin">4.4dp</dimen>
+	<dimen name="folderItemMargin">8.8dp</dimen>
+	<dimen name="videosClockPadding">4.4dp</dimen>
+	<dimen name="videosIconSizeHeight">55dp</dimen>
+	<dimen name="videosIconSizeWidth">77dp</dimen>
+	<dimen name="videosIconElevation">8.8dp</dimen>
+	<dimen name="videosIconCornerRadius">4.4dp</dimen>
+	<dimen name="playerIconSize">26.4dp</dimen>
+</resources>
