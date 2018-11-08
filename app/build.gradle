@@ -40,6 +40,7 @@ dependencies {
     // Anko
     implementation "org.jetbrains.anko:anko:$anko_version"
     implementation project(':frameSelector')
+    implementation 'com.writingminds:FFmpegAndroid:0.3.2'
 }
 repositories {
     mavenCentral()

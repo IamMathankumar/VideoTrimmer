@@ -20,24 +20,32 @@
 package com.curvegraph.trimmer.player
 
 import android.app.PictureInPictureParams
+import android.content.Intent
 import android.content.res.Configuration
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.AppCompatSeekBar
 import android.util.Rational
+import com.curvegraph.frameselector.SelectView
 import com.curvegraph.trimmer.R
 import com.curvegraph.trimmer.home.ModelFolder
+import com.curvegraph.trimmer.interfaces.VideoTrimListener
 import com.curvegraph.trimmer.utils.CommonObject
+import com.curvegraph.trimmer.utils.TimeConvert.milliToString
+import com.curvegraph.trimmer.utils.VideoTrimmer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import kotlinx.android.synthetic.main.activity_video.*
 import org.jetbrains.anko.AnkoLogger
+import java.io.File
+import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -49,7 +57,26 @@ import java.util.concurrent.TimeUnit
  * [MediaSessionCompat] and picture in picture as well.
  */
 
-class VideoActivity : AppCompatActivity(), AnkoLogger {
+class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurationListener, VideoTrimListener {
+    override fun onStartTrim() {
+    }
+
+    override fun onFinishTrim(url: String) {
+        val intent  =  Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        intent.setDataAndType(Uri.parse(url), "video/mp4")
+        startActivity(intent)
+    }
+
+
+    override fun onCancel() {
+
+    }
+
+    override fun minMaxDuration(minDuration: Long, maxDuration: Long) {
+        playerView.player.seekTo(minDuration)
+        println("Min : ${milliToString(minDuration)}, Max : ${milliToString(maxDuration)}")
+    }
+
     private val mediaSession: MediaSessionCompat by lazy { createMediaSession() }
     private val mediaSessionConnector: MediaSessionConnector by lazy {
         createMediaSessionConnector()
@@ -57,6 +84,7 @@ class VideoActivity : AppCompatActivity(), AnkoLogger {
     private val playerState by lazy { PlayerState() }
     private lateinit var playerHolder: PlayerHolder
     private var shutDownService = false
+   private lateinit var inputUrl: String
     private var service : ScheduledExecutorService = Executors.newScheduledThreadPool(1)
     // Android lifecycle hooks.
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,8 +94,15 @@ class VideoActivity : AppCompatActivity(), AnkoLogger {
         volumeControlStream = AudioManager.STREAM_MUSIC
         createMediaSession()
         createPlayer()
+        timeLineBar.getSelectView().setMinMaxListener(this)
 
+        ok.setOnClickListener {
+            trimVideo()
+        }
 
+        cancel.setOnClickListener {
+           finish()
+        }
     }
 
     private fun getMediaProgressView(): AppCompatSeekBar {
@@ -230,19 +265,35 @@ class VideoActivity : AppCompatActivity(), AnkoLogger {
     private fun loadVideos(): ArrayList<MediaDescriptionCompat> {
         val folder: ModelFolder = intent.getParcelableExtra(CommonObject.intentVideosList)
         //    val items: List<String> = folder.videoFiles
-        val string: String = intent.getStringExtra(CommonObject.intentVideo)
-        timeLineBar.setLocalUrl(string)
+        inputUrl = intent.getStringExtra(CommonObject.intentVideo)
+        timeLineBar.setLocalUrl(inputUrl)
         //     for (string in items)
         list.add(with(MediaDescriptionCompat.Builder()) {
             setDescription("Curvegraph business solutions")
             setMediaId("3")
             // License - https://mango.blender.org/sharing/
-            setMediaUri(Uri.parse(string))
-            setTitle(string.substring(string.lastIndexOf("/") + 1))
+            setMediaUri(Uri.parse(inputUrl))
+            setTitle(inputUrl.substring(inputUrl.lastIndexOf("/") + 1))
             setSubtitle(folder.folderName)
             build()
         })
 
         return list
     }
+
+
+    private fun trimVideo(){
+        val startingDuration : String = milliToString(timeLineBar.getMinDuration())
+        val endingDuration : String = milliToString(timeLineBar.getMaxDuration())
+
+        VideoTrimmer.trim(this,inputUrl,outputFileDirectory(),startingDuration,endingDuration,this)
+    }
+    private fun outputFileDirectory() : String{
+        val directory = File(Environment.getExternalStorageDirectory(), "Trimmer")
+        if (!directory.exists()){
+            directory.mkdir()
+        }
+        return directory.absolutePath
+    }
+
 }

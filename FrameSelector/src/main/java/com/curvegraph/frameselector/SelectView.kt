@@ -189,7 +189,7 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
         drawView()
 
         findDistance()
-        // setBitmapToThumbs(context)
+         setBitmapToThumbs(context)
     }
 
     fun getMediaProgressView(): AppCompatSeekBar {
