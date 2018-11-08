@@ -53,11 +53,23 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
      while dragging seekLeft and seekRight*/
     fun setMaxDuration(duration: Long) {
         this.duration = duration;
+        seekLeft.viewTreeObserver.addOnGlobalLayoutListener(
+                object : ViewTreeObserver.OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        seekLeft.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        startX = seekLeft.x
+                        endX = seekRight.x
+                        if (onMinMaxDurationListener != null) {
+                            onMinMaxDurationListener!!.minMaxDuration(((seekLeft.x * duration) / endX).toLong(), ((seekRight.x * duration) / endX).toLong())
+                        }
+                    }
+                })
     }
 
 
     fun setMinMaxListener(listener: OnMinMaxDurationListener) {
         onMinMaxDurationListener = listener
+
     }
 
     interface OnMinMaxDurationListener {
@@ -84,6 +96,15 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
         drawPatternView()
     }
 
+
+    fun getMinDuration(): Long {
+        return ((seekLeft.x * duration) / endX).toLong()
+    }
+
+    fun getMaxDuration(): Long {
+        return ((seekRight.x * duration) / endX).toLong()
+    }
+
     constructor(context: Context) : super(context) {
         init()
     }
@@ -101,10 +122,7 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
                     override fun onGlobalLayout() {
                         seekLeft.viewTreeObserver.removeOnGlobalLayoutListener(this)
                         initialize()
-                        startX = seekLeft.x
-                        endX = seekRight.x
-                        println("Seek ##left X : ${seekLeft.x}")
-                        println("Seek ##Right X : ${seekRight.x}")
+
                     }
                 })
     }
@@ -171,7 +189,7 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
         drawView()
 
         findDistance()
-        setBitmapToThumbs(context)
+        // setBitmapToThumbs(context)
     }
 
     fun getMediaProgressView(): AppCompatSeekBar {

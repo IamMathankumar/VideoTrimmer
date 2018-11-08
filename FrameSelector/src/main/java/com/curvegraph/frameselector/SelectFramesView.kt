@@ -24,7 +24,6 @@ import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewTreeObserver
 import kotlinx.android.synthetic.main.select_frame_view.view.*
 import wseemann.media.FFmpegMediaMetadataRetriever
@@ -41,6 +40,10 @@ class SelectFramesView : ConstraintLayout, FramesAdapter.ItemClickListener {
         init()
     }
 
+    fun getSelectView(): SelectView {
+        return viewParent
+    }
+
     override fun onItemClickListener(position: Int) {
 
     }
@@ -50,7 +53,7 @@ class SelectFramesView : ConstraintLayout, FramesAdapter.ItemClickListener {
 
     }
 
-    fun setLocalUrl(localUrl : String){
+    fun setLocalUrl(localUrl: String) {
         // val str =  "/storage/emulated/0/Video/96 Songs _ The Life of Ram Song Lyrical _ Vijay Sethupathi, Trisha _ Govind Vasa_Full-HD.mp4"
         frameList.viewTreeObserver.addOnGlobalLayoutListener(
                 object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -59,16 +62,18 @@ class SelectFramesView : ConstraintLayout, FramesAdapter.ItemClickListener {
                         // do whatever
                         callAdapter(localUrl)
 
+
                     }
                 })
     }
 
-    private fun callAdapter(localUrl : String){
+    private fun callAdapter(localUrl: String) {
         val med = FFmpegMediaMetadataRetriever()
         med.setDataSource(localUrl)
         val mVideoDuration = med.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION)
-        val mTimeInMilliseconds = java.lang.Long.parseLong(mVideoDuration) *1000
-        val adapter = FramesAdapter(frameList.height, localUrl,/*(frameList.width/frameList.height)+1*/ 20, context, this,mTimeInMilliseconds/20)
+        viewParent.setMaxDuration(java.lang.Long.parseLong(mVideoDuration))
+        val mTimeInMilliseconds = java.lang.Long.parseLong(mVideoDuration) * 1000
+        val adapter = FramesAdapter(frameList.height, localUrl, (frameList.width / frameList.height) + 4, context, this, mTimeInMilliseconds / ((frameList.width / frameList.height) + 4))
         frameList.adapter = adapter
         frameList.addOnItemTouchListener(RecyclerViewScrollDisable())
     }
@@ -90,5 +95,13 @@ class SelectFramesView : ConstraintLayout, FramesAdapter.ItemClickListener {
         override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
 
         }
+    }
+
+    fun getMinDuration(): Long {
+        return viewParent.getMinDuration()
+    }
+
+    fun getMaxDuration(): Long {
+        return viewParent.getMaxDuration()
     }
 }
