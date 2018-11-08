@@ -35,8 +35,34 @@ import kotlinx.android.synthetic.main.select_view.view.*
 
 class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, OnDragTouchListenerRight.OnDragActionListener {
 
+    private var startX: Float = 0f
+    private var endX: Float = 0f
+    private var duration: Long = 0
+    private var onMinMaxDurationListener: OnMinMaxDurationListener? = null
+
     override fun onDragStart(view: View?) {
+        /* If user didn't called setMaxDuration function we can get the */
+        if (duration == 0L) {
+            setMaxDuration(mediaProgress.max.toLong())
+        }
+        println("duration Android :$duration")
         drawView()
+    }
+
+    /*Need to set video total duration to find the minimum and maximum duration
+     while dragging seekLeft and seekRight*/
+    fun setMaxDuration(duration: Long) {
+        this.duration = duration;
+    }
+
+
+    fun setMinMaxListener(listener: OnMinMaxDurationListener) {
+        onMinMaxDurationListener = listener
+    }
+
+    interface OnMinMaxDurationListener {
+
+        fun minMaxDuration(minDuration: Long, maxDuration: Long)
     }
 
     override fun onDragEnd(view: View?) {
@@ -52,7 +78,9 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
             init = false
         }
 
-
+        if (onMinMaxDurationListener != null) {
+            onMinMaxDurationListener!!.minMaxDuration(((seekLeft.x * duration) / endX).toLong(), ((seekRight.x * duration) / endX).toLong())
+        }
         drawPatternView()
     }
 
@@ -73,6 +101,10 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
                     override fun onGlobalLayout() {
                         seekLeft.viewTreeObserver.removeOnGlobalLayoutListener(this)
                         initialize()
+                        startX = seekLeft.x
+                        endX = seekRight.x
+                        println("Seek ##left X : ${seekLeft.x}")
+                        println("Seek ##Right X : ${seekRight.x}")
                     }
                 })
     }

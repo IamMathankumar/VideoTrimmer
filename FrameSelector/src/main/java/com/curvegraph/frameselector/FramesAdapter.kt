@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.AsyncTask
 import android.support.v7.widget.RecyclerView
@@ -88,10 +89,10 @@ class FramesAdapter(private val viewSize: Int, private val localUrl: String, pri
             return try {
                 //   val f = File(stringUrl)
                 //      retriever.setDataSource(f.absolutePath)
-                val med = FFmpegMediaMetadataRetriever()
+                val med = MediaMetadataRetriever()
                 med.setDataSource(stringUrl)
 
-                bitmap = getResizedBitmap(med.getFrameAtTime(microsecond, FFmpegMediaMetadataRetriever.OPTION_CLOSEST), view.get()!!.width)
+                bitmap = getResizedBitmap(med.getFrameAtTime(microsecond, MediaMetadataRetriever.OPTION_CLOSEST), view.get()!!.width)
                 //   bitmap = getResizedBitmap( retriever.getFrameAtTime(microsecond, MediaMetadataRetriever.OPTION_CLOSEST), view.get()!!.width)
                 bitmap
             } catch (e: Exception) {

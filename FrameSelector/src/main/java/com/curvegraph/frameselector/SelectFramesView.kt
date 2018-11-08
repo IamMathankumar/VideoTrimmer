@@ -68,7 +68,7 @@ class SelectFramesView : ConstraintLayout, FramesAdapter.ItemClickListener {
         med.setDataSource(localUrl)
         val mVideoDuration = med.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION)
         val mTimeInMilliseconds = java.lang.Long.parseLong(mVideoDuration) *1000
-        val adapter = FramesAdapter(frameList.height, localUrl,/*(frameList.width/frameList.height)+1*/ 20, context, this,mTimeInMilliseconds/10)
+        val adapter = FramesAdapter(frameList.height, localUrl,/*(frameList.width/frameList.height)+1*/ 20, context, this,mTimeInMilliseconds/20)
         frameList.adapter = adapter
         frameList.addOnItemTouchListener(RecyclerViewScrollDisable())
     }
