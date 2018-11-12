@@ -32,6 +32,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.AppCompatSeekBar
 import android.util.Rational
+import android.view.View
 import com.curvegraph.frameselector.SelectView
 import com.curvegraph.trimmer.R
 import com.curvegraph.trimmer.home.ModelFolder
@@ -95,6 +96,7 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
         createMediaSession()
         createPlayer()
         timeLineBar.getSelectView().setMinMaxListener(this)
+        progress.visibility = View.INVISIBLE
 
         ok.setOnClickListener {
             trimVideo()
@@ -284,10 +286,13 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
 
     private fun trimVideo(){
         val startingDuration : String = milliToString(timeLineBar.getMinDuration())
-        val endingDuration : String = milliToString(timeLineBar.getMaxDuration())
+        val endingDuration : String = milliToString(timeLineBar.getMaxDuration()-timeLineBar.getMinDuration())
 
-        VideoTrimmer.trim(this,inputUrl,outputFileDirectory(),startingDuration,endingDuration,this)
+        VideoTrimmer.trim(this, inputUrl, outputFileDirectory(), startingDuration, endingDuration, this)
     }
+
+
+
     private fun outputFileDirectory() : String{
         val directory = File(Environment.getExternalStorageDirectory(), "Trimmer")
         if (!directory.exists()){

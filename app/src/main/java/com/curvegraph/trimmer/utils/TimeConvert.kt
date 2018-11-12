@@ -29,7 +29,7 @@ object TimeConvert {
      * @return long integer like 86399999
      */
     fun strToMilli(strTime: String): Long {
-        var retVal: Long = 0
+        val retVal: Long
         val hour = strTime.substring(0, 2)
         val min = strTime.substring(3, 5)
         val sec = strTime.substring(6, 8)
@@ -39,7 +39,7 @@ object TimeConvert {
         val s = Integer.parseInt(sec)
         val ms = Integer.parseInt(milli)
 
-        val strDebug = String.format("%02d:%02d:%02d.%03d", h, m, s, ms)
+       // val strDebug = String.format("%02d:%02d:%02d.%03d", h, m, s, ms)
         //System.out.println(strDebug);
         val lH = (h * 60 * 60 * 1000).toLong()
         val lM = (m * 60 * 1000).toLong()
