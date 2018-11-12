@@ -19,17 +19,24 @@ package com.curvegraph.trimmer.videos
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.AsyncTask
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.curvegraph.trimmer.R
 import kotlinx.android.synthetic.main.adapter_videos.view.*
+import wseemann.media.FFmpegMediaMetadataRetriever
 import java.io.File
+import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
 
 
@@ -63,17 +70,23 @@ class VideosAdapter(private var items: List<String>, private val context: Activi
         holder.title.text = items[position].substring(items[position].lastIndexOf("/") + 1)
         holder.itemView.tag = holder
 
-        val retriever = MediaMetadataRetriever()
+        val retriever = FFmpegMediaMetadataRetriever()
 //use one of overloaded setDataSource() functions to set your data source
-        if(File(items[position]).exists()) {
-            retriever.setDataSource(context, Uri.fromFile(File(items[position])))
-            val time: String = if (retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!= null) retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION) else "0"
-            //  UpdateThump(WeakReference(holder.icon), WeakReference(context)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, items[position])
-            holder.subTitle.text = millisToString(time.toLong())
-            Glide.with(context).load(Uri.fromFile(File(items[position]))).thumbnail(0.2f).apply(RequestOptions().centerCrop()).into(holder.icon)
+        if (File(items[position]).exists()) {
+            try {
+                retriever.setDataSource(context, Uri.fromFile(File(items[position])))
+                val time: String = if (retriever.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION) != null) retriever.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION) else "0"
+                UpdateCatalogTask(WeakReference(context), WeakReference(holder.icon), items[position], 1000).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+                holder.subTitle.text = millisToString(time.toLong())
+            } catch (ignore: Exception) {
+            } finally {
+                retriever.release()
+                println("media External storage: ${items[position]}")
+            }
+
+            //    Glide.with(context).load(retriever.getFrameAtTime(1, FFmpegMediaMetadataRetriever.OPTION_CLOSEST_SYNC)).thumbnail(0.2f).apply(RequestOptions().centerCrop()).into(holder.icon)
         }
-        retriever.release()
-        println("media External storage: ${items[position]}")
+
     }
 
     // Inflates the item views
@@ -86,11 +99,62 @@ class VideosAdapter(private var items: List<String>, private val context: Activi
     }
 
 
+    private fun millisToString(millis: Long): String {
+        return (String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
+                TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1),
+                TimeUnit.MILLISECONDS.toSeconds(millis) % TimeUnit.MINUTES.toSeconds(1))).replace("00:00", "00")
+    }
 
-   private fun millisToString(millis : Long) : String{
-      return (String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
-    TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1),
-    TimeUnit.MILLISECONDS.toSeconds(millis) % TimeUnit.MINUTES.toSeconds(1))).replace("00:00","00")
+    private class UpdateCatalogTask(val context: WeakReference<Context>, val view: WeakReference<ImageView>, val stringUrl: String, val microsecond: Long) :
+            AsyncTask<Uri, Void, Bitmap?>() {
+
+        override fun doInBackground(vararg params: Uri): Bitmap? {
+            //  val retriever = MediaMetadataRetriever()
+            lateinit var bitmap: Bitmap
+            return try {
+                //   val f = File(stringUrl)
+                //      retriever.setDataSource(f.absolutePath)
+                val med = MediaMetadataRetriever()
+                med.setDataSource(stringUrl)
+
+                bitmap = getResizedBitmap(med.getFrameAtTime(microsecond, MediaMetadataRetriever.OPTION_CLOSEST), view.get()!!.width)
+                //   bitmap = getResizedBitmap( retriever.getFrameAtTime(microsecond, MediaMetadataRetriever.OPTION_CLOSEST), view.get()!!.width)
+                bitmap
+            } catch (e: Exception) {
+                if (context.get() != null && context.get()!!.applicationContext != null) {
+                    BitmapFactory.decodeResource(context.get()!!.applicationContext.resources,
+                            R.drawable.circle)
+                } else
+                    null
+            }
+        }
+
+        /**
+         * reduces the size of the image
+         * @param image
+         * @param maxSize
+         * @return
+         */
+        fun getResizedBitmap(image: Bitmap, maxSize: Int): Bitmap {
+            var width = image.width
+            var height = image.height
+
+            val bitmapRatio = width.toFloat() / height.toFloat()
+            if (bitmapRatio > 1) {
+                width = maxSize
+                height = (width / bitmapRatio).toInt()
+            } else {
+                height = maxSize
+                width = (height * bitmapRatio).toInt()
+            }
+            return Bitmap.createScaledBitmap(image, width, height, true)
+        }
+
+        override fun onPostExecute(mediaItem: Bitmap?) {
+            super.onPostExecute(mediaItem)
+            if (view.get() != null && context.get() != null && mediaItem != null)
+                Glide.with(context.get()!!.applicationContext).load(mediaItem).thumbnail(0.2f).apply(RequestOptions().centerCrop()).into(view.get()!!)
+        }
     }
 
 }

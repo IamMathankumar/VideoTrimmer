@@ -69,13 +69,18 @@ class SelectFramesView : ConstraintLayout, FramesAdapter.ItemClickListener {
 
     private fun callAdapter(localUrl: String) {
         val med = FFmpegMediaMetadataRetriever()
-        med.setDataSource(localUrl)
-        val mVideoDuration = med.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION)
-        viewParent.setMaxDuration(java.lang.Long.parseLong(mVideoDuration))
-        val mTimeInMilliseconds = java.lang.Long.parseLong(mVideoDuration) * 1000
-        val adapter = FramesAdapter(frameList.height, localUrl, (frameList.width / frameList.height) + 4, context, this, mTimeInMilliseconds / ((frameList.width / frameList.height) + 4))
-        frameList.adapter = adapter
-        frameList.addOnItemTouchListener(RecyclerViewScrollDisable())
+        try {
+            med.setDataSource(localUrl)
+            val mVideoDuration = med.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION)
+            viewParent.setMaxDuration(java.lang.Long.parseLong(mVideoDuration))
+            val mTimeInMilliseconds = java.lang.Long.parseLong(mVideoDuration) * 1000
+            val adapter = FramesAdapter(frameList.height, localUrl, (frameList.width / frameList.height) + 4, context, this, mTimeInMilliseconds / ((frameList.width / frameList.height) + 4))
+            frameList.adapter = adapter
+            frameList.addOnItemTouchListener(RecyclerViewScrollDisable())
+        } catch (ignore: Exception) {
+        } finally {
+            med.release()
+        }
     }
 
     fun getMediaProgressView(): AppCompatSeekBar {
