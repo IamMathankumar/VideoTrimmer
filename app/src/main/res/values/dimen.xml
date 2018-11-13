@@ -16,4 +16,6 @@
 
     <dimen name="playerTrimFrameSize">40dp</dimen>
 
+
+    <dimen name="trimDurationTextSize">8sp</dimen>
 </resources>

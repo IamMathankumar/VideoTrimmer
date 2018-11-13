@@ -20,6 +20,7 @@ package com.curvegraph.frameselector
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.media.MediaMetadataRetriever
 import android.support.constraint.ConstraintLayout
 import android.support.v7.widget.AppCompatSeekBar
 import android.support.v7.widget.RecyclerView
@@ -79,9 +80,10 @@ class SelectFramesView : ConstraintLayout, FramesAdapter.ItemClickListener, Exec
     }
 
     private fun callAdapter(localUrl: String) {
-        val med = FFmpegMediaMetadataRetriever()
+        val med = MediaMetadataRetriever()
+        try {
         med.setDataSource(localUrl)
-        val mVideoDuration = med.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION)
+        val mVideoDuration = med.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
         viewParent.setMaxDuration(java.lang.Long.parseLong(mVideoDuration))
         val mTimeInMilliseconds = java.lang.Long.parseLong(mVideoDuration) * 1000
         //  val adapter = FramesAdapter(frameList.height, localUrl, (frameList.width / frameList.height) + 4, context, this, mTimeInMilliseconds / ((frameList.width / frameList.height) + 4))
@@ -92,6 +94,10 @@ class SelectFramesView : ConstraintLayout, FramesAdapter.ItemClickListener, Exec
         frameList.adapter = adapter
         frameList.addOnItemTouchListener(RecyclerViewScrollDisable())
         VideoUtil().backgroundShootVideoThumb(context, Uri.parse(localUrl), frameList.height, itemTotalCount, frameDefaultDuration, this)
+        } catch (ignore: Exception) {
+        } finally {
+            med.release()
+        }
     }
 
     fun getMediaProgressView(): AppCompatSeekBar {

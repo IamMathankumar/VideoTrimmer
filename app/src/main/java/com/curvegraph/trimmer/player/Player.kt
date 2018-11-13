@@ -85,7 +85,7 @@ class PlayerHolder(private val context: Context,
     // Prepare playback.
     fun start(mediaList : ArrayList<MediaDescriptionCompat>) {
         // Load media.
-        audioFocusPlayer.prepare(buildMediaSource(mediaList))
+        audioFocusPlayer.prepare(buildMediaSource(mediaList),true, false)
         // Restore state (after onResume()/onStart())
         with(playerState) {
             // Start playback when media has buffered enough
@@ -125,7 +125,7 @@ class PlayerHolder(private val context: Context,
      */
     private fun attachLogging(exoPlayer: ExoPlayer) {
         // Show toasts on state changes.
-        exoPlayer.addListener(object : Player.DefaultEventListener() {
+        exoPlayer.addListener(object : Player.EventListener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 when (playbackState) {
                     Player.STATE_ENDED -> {
@@ -143,7 +143,7 @@ class PlayerHolder(private val context: Context,
             }
         })
         // Write to log on state changes.
-        exoPlayer.addListener(object : Player.DefaultEventListener() {
+        exoPlayer.addListener(object : Player.EventListener{
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 info { "playerStateChanged: ${getStateString(playbackState)}, $playWhenReady" }
             }

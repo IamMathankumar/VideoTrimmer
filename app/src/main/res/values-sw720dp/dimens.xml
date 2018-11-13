@@ -8,4 +8,5 @@
 	<dimen name="videosIconElevation">12.8dp</dimen>
 	<dimen name="videosIconCornerRadius">6.4dp</dimen>
 	<dimen name="playerIconSize">38.4dp</dimen>
+	<dimen name="trimDurationTextSize">11.2sp</dimen>
 </resources>

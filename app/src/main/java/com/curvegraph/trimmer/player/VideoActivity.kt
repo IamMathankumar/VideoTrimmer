@@ -32,6 +32,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.AppCompatSeekBar
 import android.util.Rational
+import android.view.SurfaceHolder
 import android.view.View
 import com.curvegraph.frameselector.SelectView
 import com.curvegraph.trimmer.R
@@ -43,7 +44,9 @@ import com.curvegraph.trimmer.utils.VideoTrimmer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
+import com.google.android.exoplayer2.util.Util
 import kotlinx.android.synthetic.main.activity_video.*
+import kotlinx.android.synthetic.main.custom_playback_control_minimal.*
 import org.jetbrains.anko.AnkoLogger
 import java.io.File
 import java.util.*
@@ -59,23 +62,61 @@ import java.util.concurrent.TimeUnit
  */
 
 class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurationListener, VideoTrimListener {
+
+
+    override fun draggingStarted() {
+        // To get if video is playing when user starts to drag the frame selector
+        isPlaying = videoIsPlaying()
+        dragging = true
+        videoPause()
+    }
+
+    override fun draggingFinished() {
+
+        videoReady()
+    }
+
+    override fun minDuration(minDuration: Long) {
+        videoSeekTo(minDuration)
+        getMediaProgressView().progress = minDuration.toInt()
+        println("Minimum : ${milliToString(minDuration)}, player position : ${playerView.player.currentPosition}}")
+    }
+
+    override fun maxDuration(maxDuration: Long) {
+        videoSeekTo(maxDuration)
+    }
+
+    override fun onFailed() {
+        progress.visibility = View.INVISIBLE
+    }
+
     override fun onStartTrim() {
+        progress.visibility = View.VISIBLE
     }
 
     override fun onFinishTrim(url: String) {
-        val intent  =  Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        progress.visibility = View.INVISIBLE
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         intent.setDataAndType(Uri.parse(url), "video/mp4")
         startActivity(intent)
     }
 
 
     override fun onCancel() {
-
+        progress.visibility = View.INVISIBLE
     }
 
+    private var isPlaying = false
     override fun minMaxDuration(minDuration: Long, maxDuration: Long) {
-        playerView.player.seekTo(minDuration)
-        println("Min : ${milliToString(minDuration)}, Max : ${milliToString(maxDuration)}")
+        var miniDuration = milliToString(minDuration)
+        var maxiDuration = milliToString(maxDuration)
+        if (maxiDuration.contains("00:")) {
+            maxiDuration = maxiDuration.replace("00:", "")
+            miniDuration = miniDuration.replace("00:", "")
+        }
+        val duration = "$miniDuration - $maxiDuration (${milliToString(maxDuration - minDuration).replace("00:", "")})";
+        textView.text = duration
+        //    println("Min : ${milliToString(minDuration)}, Max : ${milliToString(maxDuration)}")
     }
 
     private val mediaSession: MediaSessionCompat by lazy { createMediaSession() }
@@ -85,8 +126,8 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
     private val playerState by lazy { PlayerState() }
     private lateinit var playerHolder: PlayerHolder
     private var shutDownService = false
-   private lateinit var inputUrl: String
-    private var service : ScheduledExecutorService = Executors.newScheduledThreadPool(1)
+    private lateinit var inputUrl: String
+    private var service: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
     // Android lifecycle hooks.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,14 +137,13 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
         createMediaSession()
         createPlayer()
         timeLineBar.getSelectView().setMinMaxListener(this)
-        progress.visibility = View.INVISIBLE
 
+        progress.visibility = View.INVISIBLE
         ok.setOnClickListener {
             trimVideo()
         }
-
         cancel.setOnClickListener {
-           finish()
+            finish()
         }
     }
 
@@ -111,21 +151,29 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
         return timeLineBar.getMediaProgressView()
     }
 
+    private var dragging = false
     fun makeProgress() {
         val seek: AppCompatSeekBar = getMediaProgressView()
-        seek.max = playerView.player.duration.toInt()
+        seek.max = videoTotalDuration().toInt()
         shutDownService = false
-        if(!service.isShutdown){
+        if (!service.isShutdown) {
             service.shutdown()
         }
-         service = Executors.newScheduledThreadPool(1)
+        service = Executors.newScheduledThreadPool(1)
         service.scheduleWithFixedDelay({
             if (!shutDownService) {
                 runOnUiThread {
+                    //        println("Minimum : ${milliToString(timeLineBar.getMinDuration())}, player position : ${playerView.player.currentPosition}}")
+                    if (!dragging && videoCurrentPosition() <= timeLineBar.getMaxDuration())
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             seek.setProgress(playerView.player.currentPosition.toInt(), true)
                         } else
-                             seek.progress = (playerView.player.currentPosition.toInt())
+                            seek.progress = (playerView.player.currentPosition.toInt())
+                    else {
+                        videoSeekTo(timeLineBar.getMinDuration())
+                        videoPause()
+                        service.shutdown()
+                    }
                 }
             } else {
                 service.shutdown()
@@ -161,6 +209,18 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
         super.onPause()
         shutDownService = true
         handlerPassed = true
+        isPlaying = videoIsPlaying()
+        videoPause()
+        // workaround for https://github.com/google/ExoPlayer/issues/677
+        // this hides the playerView when the activity is paused
+        // and video is not playing, avoids showing the black box
+        if (videoIsPlaying()) {
+            playerView?.visibility = View.GONE
+        }
+
+        if (Util.SDK_INT <= 23) {
+            releasePlayer()
+        }
     }
 
     override fun onResume() {
@@ -169,6 +229,11 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
             handlerPassed = false
             makeProgress()
         }
+        if (playerView.visibility != View.VISIBLE) {
+            playerView?.visibility = View.VISIBLE
+        }
+
+        getMediaProgressView().progress = videoCurrentPosition().toInt()
     }
 
     // MediaSession related functions.
@@ -212,7 +277,7 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
         playerHolder = PlayerHolder(this, playerState, playerView)
 
         // Show toasts on state changes.
-        playerHolder.audioFocusPlayer.addListener(object : Player.DefaultEventListener() {
+        playerHolder.audioFocusPlayer.addListener(object : Player.EventListener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 when (playbackState) {
                     Player.STATE_ENDED -> {
@@ -221,6 +286,10 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
                     }
                     Player.STATE_READY -> when (playWhenReady) {
                         true -> {
+                            if (dragging) {
+                                dragging = false
+                                videoSeekTo(timeLineBar.getMinDuration())
+                            }
                             makeProgress()
                         }
                         false -> {
@@ -245,7 +314,7 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
         playerHolder.release()
     }
 
-    // Picture in Picture related functions.
+/*    // Picture in Picture related functions.
     override fun onUserLeaveHint() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             enterPictureInPictureMode(
@@ -260,9 +329,9 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
 
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean,
                                                newConfig: Configuration?) {
-        playerView.useController = !isInPictureInPictureMode
+       playerView.useController = !isInPictureInPictureMode
     }
-
+    */
     private val list: ArrayList<MediaDescriptionCompat> = ArrayList()
     private fun loadVideos(): ArrayList<MediaDescriptionCompat> {
         val folder: ModelFolder = intent.getParcelableExtra(CommonObject.intentVideosList)
@@ -284,21 +353,54 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
     }
 
 
-    private fun trimVideo(){
-        val startingDuration : String = milliToString(timeLineBar.getMinDuration())
-        val endingDuration : String = milliToString(timeLineBar.getMaxDuration()-timeLineBar.getMinDuration())
+    private fun trimVideo() {
+        val startingDuration: String = milliToString(timeLineBar.getMinDuration())
+        val endingDuration: String = milliToString(timeLineBar.getMaxDuration() - timeLineBar.getMinDuration())
 
         VideoTrimmer.trim(this, inputUrl, outputFileDirectory(), startingDuration, endingDuration, this)
     }
 
 
-
-    private fun outputFileDirectory() : String{
+    private fun outputFileDirectory(): String {
         val directory = File(Environment.getExternalStorageDirectory(), "Trimmer")
-        if (!directory.exists()){
+        if (!directory.exists()) {
             directory.mkdir()
         }
         return directory.absolutePath
     }
+
+    private fun videoPause() {
+        playerView.player.playWhenReady = false
+    }
+
+    private fun videoPlay() {
+        videoReady()
+        playerView.player.playWhenReady = true
+    }
+
+    private fun videoReady() {
+        playerView.player.playbackState == Player.STATE_READY
+    }
+
+    private fun videoIsPlaying(): Boolean {
+        return playerView.player.playWhenReady && playerView.player.playbackState == Player.STATE_READY
+    }
+
+    private fun videoSeekTo(duration: Long) {
+        playerView.player.seekTo(duration)
+    }
+
+    private fun videoCurrentPosition(): Long {
+        return playerView.player.currentPosition
+    }
+
+    private fun videoTotalDuration(): Long {
+        return playerView.player.duration
+    }
+
+    private fun videoPlayer(): Player {
+        return playerView.player
+    }
+
 
 }

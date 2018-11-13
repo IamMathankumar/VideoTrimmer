@@ -30,7 +30,11 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewTreeObserver
+import kotlinx.android.synthetic.main.drag_line.view.*
 import kotlinx.android.synthetic.main.select_view.view.*
+import android.util.TypedValue
+
+
 
 
 class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, OnDragTouchListenerRight.OnDragActionListener {
@@ -47,18 +51,32 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
         }
         println("duration Android :$duration")
         drawView()
+        if (onMinMaxDurationListener != null) {
+            onMinMaxDurationListener!!.draggingStarted()
+        }
+
+        when (view!!.id) {
+            R.id.seekLeft -> {
+                seekLeft.bringToFront()
+                onMinMaxDurationListener!!.minDuration(((seekLeft.x * duration) / endX).toLong())
+            }
+            R.id.seekRight -> {
+                seekRight.bringToFront()
+                onMinMaxDurationListener!!.maxDuration(((seekRight.x * duration) / endX).toLong())
+            }
+        }
     }
 
     /*Need to set video total duration to find the minimum and maximum duration
      while dragging seekLeft and seekRight*/
     fun setMaxDuration(duration: Long) {
-        this.duration = duration;
+        this.duration = duration
         seekLeft.viewTreeObserver.addOnGlobalLayoutListener(
                 object : ViewTreeObserver.OnGlobalLayoutListener {
                     override fun onGlobalLayout() {
                         seekLeft.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                        startX = seekLeft.x
-                        endX = seekRight.x
+                        startX = 0f
+                        endX = (width-seekRight.width).toFloat()
                         if (onMinMaxDurationListener != null) {
                             onMinMaxDurationListener!!.minMaxDuration(((seekLeft.x * duration) / endX).toLong(), ((seekRight.x * duration) / endX).toLong())
                         }
@@ -75,10 +93,19 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
     interface OnMinMaxDurationListener {
 
         fun minMaxDuration(minDuration: Long, maxDuration: Long)
+
+        fun minDuration(minDuration: Long)
+
+        fun maxDuration(maxDuration: Long)
+        fun draggingFinished()
+        fun draggingStarted()
     }
 
     override fun onDragEnd(view: View?) {
         drawView()
+        if (onMinMaxDurationListener != null) {
+            onMinMaxDurationListener!!.draggingFinished()
+        }
     }
 
     override fun onDragging(view: View?) {
@@ -92,6 +119,14 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
 
         if (onMinMaxDurationListener != null) {
             onMinMaxDurationListener!!.minMaxDuration(((seekLeft.x * duration) / endX).toLong(), ((seekRight.x * duration) / endX).toLong())
+        }
+        when (view!!.id) {
+            R.id.seekLeft -> {
+                onMinMaxDurationListener!!.minDuration(((seekLeft.x * duration) / endX).toLong())
+            }
+            R.id.seekRight -> {
+                onMinMaxDurationListener!!.maxDuration(((seekRight.x * duration) / endX).toLong())
+            }
         }
         drawPatternView()
     }
@@ -125,6 +160,7 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
 
                     }
                 })
+        mediaProgress.setOnTouchListener { _, _ -> true }
     }
 
     private fun initialize() {
@@ -139,6 +175,7 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
         seekBottom.color(ContextCompat.getColor(context, R.color.colorDefault))
         drawPatternView()
         drawView()
+        setBitmapToThumbs(context)
     }
 
     private var pointFStart = PointF(0f, 0f)
@@ -185,11 +222,11 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
 
         seekLeftDragListener.updateParentBounds()
         seekRightDragListener.updateParentBounds()
-        mediaProgress.setOnTouchListener { _, _ -> true }
+
         drawView()
 
         findDistance()
-         setBitmapToThumbs(context)
+
     }
 
     fun getMediaProgressView(): AppCompatSeekBar {
@@ -213,7 +250,6 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
 
     private fun layout(LayoutId: Int, context: Context): Bitmap {
         val child = LayoutInflater.from(context).inflate(LayoutId, null)
-
         val widthIs = 10
         val height = height
         child.layout(0, 0, widthIs, height)
@@ -242,6 +278,17 @@ class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, O
         view.draw(c)
 
         return b
+    }
+
+    fun seekRightWidth( width: Int):Float{
+        // Converts 14 dip into its equivalent px
+        val dip = width.toFloat()
+        val r = resources
+        return TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dip,
+                r.displayMetrics
+        )
     }
 
 }

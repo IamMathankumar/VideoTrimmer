@@ -29,9 +29,7 @@
             android:name=".player.VideoActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:launchMode="singleTask"
-            android:resizeableActivity="true"
-            android:supportsPictureInPicture="true"
-            tools:targetApi="n" />
+            />
     </application>
 
 </manifest>

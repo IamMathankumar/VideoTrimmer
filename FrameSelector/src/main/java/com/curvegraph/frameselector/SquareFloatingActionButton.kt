@@ -18,33 +18,22 @@
 package com.curvegraph.frameselector
 
 import android.content.Context
-import android.support.constraint.ConstraintLayout
+import android.support.design.widget.FloatingActionButton
 import android.util.AttributeSet
-import android.view.LayoutInflater
-import kotlinx.android.synthetic.main.drag_line.view.*
+import android.widget.ImageView
 
+class SquareFloatingActionButton : FloatingActionButton {
 
-class DragLine : ConstraintLayout {
+    constructor(context: Context) : super(context)
 
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
-    constructor(context: Context) : super(context) {
-        init()
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+
+        val height = measuredWidth
+        setMeasuredDimension(measuredWidth, height)
     }
-
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        init()
-    }
-
-    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
-        init()
-    }
-
-
-
-    private fun init() {
-        LayoutInflater.from(context).inflate(R.layout.drag_line, this)
-    }
-
 }
-
-
