@@ -19,15 +19,17 @@
 package com.curvegraph.trimmer.utils
 
 import android.content.Context
-
 import com.curvegraph.trimmer.interfaces.VideoTrimListener
 import com.github.hiteshsondhi88.libffmpeg.ExecuteBinaryResponseHandler
 import com.github.hiteshsondhi88.libffmpeg.FFmpeg
-import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException
-
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
+import android.webkit.MimeTypeMap
+import android.content.ContentResolver
+import android.net.Uri
+import java.io.File
+
+
 
 
 object VideoTrimmer {
@@ -35,25 +37,61 @@ object VideoTrimmer {
     private val TAG = VideoTrimmer::class.java.simpleName
 
 
-    fun trim(context: Context, inputFile: String, outputFile: String, start: String, duration: String, callback: VideoTrimListener) {
-        var outputFile = outputFile
+    fun trim(context: Context, inputFileIs: String, outputFileIs: String, start: String, duration: String, callback: VideoTrimListener) {
+        var outputFile = outputFileIs
+        var inputFile = inputFileIs
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val outputName = "Curvegraph_$timeStamp.mp4"
         outputFile = "$outputFile/$outputName"
 
-        val cmd = "-y -ss $start -i $inputFile -to $duration -async 1 -strict -2 -c copy $outputFile"
+        val value = getMimeType(context, Uri.parse( File(inputFile).toString()))
+        if(value == null){
+     //       inputFile=inputFile.plus(".mp4")
+        }
+        println("getMimeType  : ${getMimeType(context, Uri.parse( File(inputFile).toString()))}")
+       // val cmd = "-y -ss $start -i $inputFile -to $duration -strict -2 -c copy $outputFile"
+       // val cmd = "-y -ss $start -i $inputFile -to $duration -async 1 -strict -2 -c copy $outputFile"
+        /// ffmpeg -i movie.mp4 -ss 00:00:03 -t 00:00:08 -async 1 -c copy cut.mp4
 
-        val command = cmd.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+
+       // val cmd = " \"$inputFile\" -ss $start -t $duration -c copy $outputFile"
+
+        val commandList = LinkedList<String>()
+        commandList.add("-i")
+        commandList.add(inputFile)
+        commandList.add("-ss")
+        commandList.add(start)
+        commandList.add("-t")
+        commandList.add(duration)
+        commandList.add("-c")
+        commandList.add("copy")
+        commandList.add(outputFile)
+        val command = commandList.toTypedArray()
         try {
             val tempOutFile = outputFile
             FFmpeg.getInstance(context).execute(command, object : ExecuteBinaryResponseHandler() {
 
+                override fun onFailure(message: String?) {
+                    super.onFailure(message)
+                //    pb.visibility = View.INVISIBLE
+                }
+
+                override fun onProgress(message: String?) {
+                    super.onProgress(message)
+                 //       pb.message.text = message
+                    println("Progress  : $message")
+                }
                 override fun onSuccess(s: String?) {
                     callback.onFinishTrim(tempOutFile)
+               //     pb.visibility = View.INVISIBLE
+               //     pb.message.visibility = View.INVISIBLE
                 }
 
                 override fun onStart() {
                     callback.onStartTrim()
+             //       pb.visibility = View.VISIBLE
+            //        pb.progress = 0
+             //       pb.message.visibility = View.VISIBLE
                 }
             })
         } catch (e: Exception) {
@@ -61,4 +99,19 @@ object VideoTrimmer {
         }
 
     }
+
+    fun getMimeType( context: Context, uri: Uri): String? {
+        var mimeType: String? = null
+        if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
+            val cr = context.getContentResolver()
+            mimeType = cr.getType(uri)
+        } else {
+            val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
+                    .toString())
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                    fileExtension.toLowerCase())
+        }
+        return mimeType
+    }
+
 }
