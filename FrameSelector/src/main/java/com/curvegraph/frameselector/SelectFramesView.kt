@@ -18,6 +18,8 @@
 package com.curvegraph.frameselector
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
 import android.support.constraint.ConstraintLayout
 import android.support.v7.widget.AppCompatSeekBar
 import android.support.v7.widget.RecyclerView
@@ -29,8 +31,17 @@ import kotlinx.android.synthetic.main.select_frame_view.view.*
 import wseemann.media.FFmpegMediaMetadataRetriever
 
 
-class SelectFramesView : ConstraintLayout, FramesAdapter.ItemClickListener {
+class SelectFramesView : ConstraintLayout, FramesAdapter.ItemClickListener, ExecutorCallBack<Bitmap, Int, Int> {
+    override fun onExecutorCallback(bitmap: Bitmap?, itemPosition: Int?, framePosition: Int?) {
+        frameList.post {
+            // set the downloaded image here
+            adapter.addImage(frameList, itemPosition!!, bitmap!!)
+        }
 
+    }
+
+
+    private lateinit var adapter: FramesAdapter
 
     constructor(context: Context) : super(context) {
         init()
@@ -69,18 +80,18 @@ class SelectFramesView : ConstraintLayout, FramesAdapter.ItemClickListener {
 
     private fun callAdapter(localUrl: String) {
         val med = FFmpegMediaMetadataRetriever()
-        try {
-            med.setDataSource(localUrl)
-            val mVideoDuration = med.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION)
-            viewParent.setMaxDuration(java.lang.Long.parseLong(mVideoDuration))
-            val mTimeInMilliseconds = java.lang.Long.parseLong(mVideoDuration) * 1000
-            val adapter = FramesAdapter(frameList.height, localUrl, (frameList.width / frameList.height) + 4, context, this, mTimeInMilliseconds / ((frameList.width / frameList.height) + 4))
-            frameList.adapter = adapter
-            frameList.addOnItemTouchListener(RecyclerViewScrollDisable())
-        } catch (ignore: Exception) {
-        } finally {
-            med.release()
-        }
+        med.setDataSource(localUrl)
+        val mVideoDuration = med.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION)
+        viewParent.setMaxDuration(java.lang.Long.parseLong(mVideoDuration))
+        val mTimeInMilliseconds = java.lang.Long.parseLong(mVideoDuration) * 1000
+        //  val adapter = FramesAdapter(frameList.height, localUrl, (frameList.width / frameList.height) + 4, context, this, mTimeInMilliseconds / ((frameList.width / frameList.height) + 4))
+
+        val frameDefaultDuration = mTimeInMilliseconds / ((frameList.width / frameList.height) + 4)
+        val itemTotalCount = (frameList.width / frameList.height) + 4
+        adapter = FramesAdapter(frameList.height, (frameList.width / frameList.height) + 4, context, this)
+        frameList.adapter = adapter
+        frameList.addOnItemTouchListener(RecyclerViewScrollDisable())
+        VideoUtil().backgroundShootVideoThumb(context, Uri.parse(localUrl), frameList.height, itemTotalCount, frameDefaultDuration, this)
     }
 
     fun getMediaProgressView(): AppCompatSeekBar {
