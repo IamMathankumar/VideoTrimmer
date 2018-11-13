@@ -21,7 +21,6 @@ import android.content.Context
 import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import kotlinx.android.synthetic.main.drag_line.view.*
 
 
 class DragLine : ConstraintLayout {

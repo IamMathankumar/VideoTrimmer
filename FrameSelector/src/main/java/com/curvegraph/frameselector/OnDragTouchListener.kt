@@ -17,9 +17,11 @@
  */
 package com.curvegraph.frameselector
 
+import android.annotation.SuppressLint
 import android.view.MotionEvent
 import android.view.View
 
+@Suppress("unused")
 class OnDragTouchListener @JvmOverloads constructor(view: View, parent: View = view.parent as View, onDragActionListener: OnDragActionListener? = null) : View.OnTouchListener {
 
     private var mView: View? = null
@@ -62,31 +64,31 @@ class OnDragTouchListener @JvmOverloads constructor(view: View, parent: View = v
         fun onDragging(view: View?)
     }
 
-    constructor(view: View, onDragActionListener: OnDragActionListener) : this(view, view.parent as View, onDragActionListener) {}
+    constructor(view: View, onDragActionListener: OnDragActionListener) : this(view, view.parent as View, onDragActionListener)
 
     init {
         initListener(view, parent)
         setOnDragActionListener(onDragActionListener)
     }
 
-    fun setOnDragActionListener(onDragActionListener: OnDragActionListener?) {
+    private  fun setOnDragActionListener(onDragActionListener: OnDragActionListener?) {
         mOnDragActionListener = onDragActionListener
     }
 
-    fun initListener(view: View, parent: View) {
+    private fun initListener(view: View, parent: View) {
         mView = view
         mParent = parent
         isDragging = false
         isInitialized = false
     }
 
-    fun updateBounds() {
+    private fun updateBounds() {
         updateViewBounds()
         updateParentBounds()
         isInitialized = true
     }
 
-    fun updateViewBounds() {
+    private  fun updateViewBounds() {
         width = mView!!.width
         xWhenAttached = mView!!.x
         dX = 0f
@@ -104,6 +106,7 @@ class OnDragTouchListener @JvmOverloads constructor(view: View, parent: View = v
         maxBottom = maxTop + mParent!!.height
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         if (isDragging) {
             if (mOnDragActionListener != null) {

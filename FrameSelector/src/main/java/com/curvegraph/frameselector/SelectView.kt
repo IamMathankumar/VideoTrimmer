@@ -27,16 +27,14 @@ import android.support.constraint.ConstraintLayout
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.AppCompatSeekBar
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewTreeObserver
-import kotlinx.android.synthetic.main.drag_line.view.*
 import kotlinx.android.synthetic.main.select_view.view.*
-import android.util.TypedValue
 
 
-
-
+@Suppress("unused")
 class SelectView : ConstraintLayout, OnDragTouchListener.OnDragActionListener, OnDragTouchListenerRight.OnDragActionListener {
 
     private var startX: Float = 0f

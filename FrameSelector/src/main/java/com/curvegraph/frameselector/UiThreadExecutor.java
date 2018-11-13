@@ -30,6 +30,7 @@ import java.util.Map;
  * This class provide operations for
  * UiThread tasks.
  */
+@SuppressWarnings("unused")
 public final class UiThreadExecutor {
 
     private static final Handler HANDLER = new Handler(Looper.getMainLooper()) {
@@ -88,6 +89,7 @@ public final class UiThreadExecutor {
                 if (old != token) {
                     // a runnable finished after cancelling, we just removed a
                     // wrong token, lets put it back
+                    assert old != null;
                     TOKENS.put(id, old);
                 }
             }

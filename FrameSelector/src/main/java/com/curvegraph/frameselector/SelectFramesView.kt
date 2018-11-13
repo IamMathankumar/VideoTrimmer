@@ -19,8 +19,8 @@ package com.curvegraph.frameselector
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.support.constraint.ConstraintLayout
 import android.support.v7.widget.AppCompatSeekBar
 import android.support.v7.widget.RecyclerView
@@ -29,7 +29,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewTreeObserver
 import kotlinx.android.synthetic.main.select_frame_view.view.*
-import wseemann.media.FFmpegMediaMetadataRetriever
 
 
 class SelectFramesView : ConstraintLayout, FramesAdapter.ItemClickListener, ExecutorCallBack<Bitmap, Int, Int> {

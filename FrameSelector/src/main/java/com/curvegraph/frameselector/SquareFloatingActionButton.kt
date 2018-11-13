@@ -20,7 +20,6 @@ package com.curvegraph.frameselector
 import android.content.Context
 import android.support.design.widget.FloatingActionButton
 import android.util.AttributeSet
-import android.widget.ImageView
 
 class SquareFloatingActionButton : FloatingActionButton {
 

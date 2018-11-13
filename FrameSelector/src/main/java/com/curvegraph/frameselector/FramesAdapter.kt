@@ -31,8 +31,6 @@ import kotlinx.android.synthetic.main.adapter_frame.view.*
 
 class FramesAdapter(private val viewSize: Int, private var itemTotalCounts: Int, private val context: Context, private val itemClickListener: ItemClickListener) : RecyclerView.Adapter<FramesAdapter.ViewHolder>() {
 
-    private var duration = 0L
-
     interface ItemClickListener {
         fun onItemClickListener(position: Int)
     }
