@@ -22,7 +22,10 @@ package com.curvegraph.trimmer.player
 import android.app.PictureInPictureParams
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.AudioManager
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -38,7 +41,9 @@ import com.curvegraph.frameselector.SelectView
 import com.curvegraph.trimmer.R
 import com.curvegraph.trimmer.home.ModelFolder
 import com.curvegraph.trimmer.interfaces.VideoTrimListener
+import com.curvegraph.trimmer.utils.CommonMethod
 import com.curvegraph.trimmer.utils.CommonObject
+import com.curvegraph.trimmer.utils.Dialogs
 import com.curvegraph.trimmer.utils.TimeConvert.milliToString
 import com.curvegraph.trimmer.utils.VideoTrimmer
 import com.google.android.exoplayer2.Player
@@ -48,7 +53,9 @@ import com.google.android.exoplayer2.util.Util
 import kotlinx.android.synthetic.main.activity_video.*
 import kotlinx.android.synthetic.main.custom_playback_control_minimal.*
 import org.jetbrains.anko.AnkoLogger
+import wseemann.media.FFmpegMediaMetadataRetriever
 import java.io.File
+import java.net.URLConnection
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -61,7 +68,21 @@ import java.util.concurrent.TimeUnit
  * [MediaSessionCompat] and picture in picture as well.
  */
 
-class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurationListener, VideoTrimListener {
+class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurationListener, VideoTrimListener, Dialogs.DialogListener {
+    var trimmedUrl = ""
+    override fun skipped() {
+        finish()
+    }
+
+    override fun playVideo() {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(trimmedUrl))
+        intent.setDataAndType(Uri.parse(trimmedUrl), "video/mp4")
+        startActivity(intent)
+    }
+
+    override fun shareVideo() {
+        shareFile(File(trimmedUrl))
+    }
 
 
     override fun draggingStarted() {
@@ -75,6 +96,22 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
 
         videoReady()
     }
+
+
+    private fun shareFile(file: File) {
+
+        val intentShareFile = Intent(Intent.ACTION_SEND)
+
+        intentShareFile.type = URLConnection.guessContentTypeFromName(file.getName());
+        intentShareFile.putExtra(Intent.EXTRA_STREAM,
+                Uri.parse(file.absolutePath));
+
+        //if you need
+        //intentShareFile.putExtra(Intent.EXTRA_SUBJECT,"Sharing File Subject);
+        //intentShareFile.putExtra(Intent.EXTRA_TEXT, "Sharing File Description");
+        startActivity(Intent.createChooser(intentShareFile, "Share video"));
+    }
+
 
     override fun minDuration(minDuration: Long) {
         videoSeekTo(minDuration)
@@ -95,10 +132,21 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
     }
 
     override fun onFinishTrim(url: String) {
+        trimmedUrl = url
         progress.visibility = View.INVISIBLE
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        intent.setDataAndType(Uri.parse(url), "video/mp4")
-        startActivity(intent)
+        lateinit var bitmap: Bitmap
+        try {
+            //   val f = File(stringUrl)
+            //      retriever.setDataSource(f.absolutePath)
+            val med = FFmpegMediaMetadataRetriever()
+            med.setDataSource(url)
+
+            bitmap = CommonMethod.getResizedBitmap(med.getFrameAtTime(1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST), resources.getDimensionPixelSize(R.dimen.dialog_width))
+            //   bitmap = getResizedBitmap( retriever.getFrameAtTime(microsecond, MediaMetadataRetriever.OPTION_CLOSEST), view.get()!!.width)
+            Dialogs.dialogTrimCompleted(this, bitmap, this)
+        } catch (e: Exception) {
+        }
+
     }
 
 
@@ -314,30 +362,31 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
         playerHolder.release()
     }
 
-/*    // Picture in Picture related functions.
-    override fun onUserLeaveHint() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            enterPictureInPictureMode(
-                    with(PictureInPictureParams.Builder()) {
-                        val width = 16
-                        val height = 9
-                        setAspectRatio(Rational(width, height))
-                        build()
-                    })
+    /*    // Picture in Picture related functions.
+        override fun onUserLeaveHint() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                enterPictureInPictureMode(
+                        with(PictureInPictureParams.Builder()) {
+                            val width = 16
+                            val height = 9
+                            setAspectRatio(Rational(width, height))
+                            build()
+                        })
+            }
         }
-    }
 
-    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean,
-                                               newConfig: Configuration?) {
-       playerView.useController = !isInPictureInPictureMode
-    }
-    */
+        override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean,
+                                                   newConfig: Configuration?) {
+           playerView.useController = !isInPictureInPictureMode
+        }
+        */
     private val list: ArrayList<MediaDescriptionCompat> = ArrayList()
+
     private fun loadVideos(): ArrayList<MediaDescriptionCompat> {
 
         var folderName = ""
 
-        if(null!=intent.getParcelableExtra(CommonObject.intentVideosList)){
+        if (null != intent.getParcelableExtra(CommonObject.intentVideosList)) {
             val folder: ModelFolder = (intent.getParcelableExtra(CommonObject.intentVideosList))
             folderName = folder.folderName
         }

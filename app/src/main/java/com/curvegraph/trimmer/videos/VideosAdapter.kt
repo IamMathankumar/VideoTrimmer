@@ -33,6 +33,7 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.curvegraph.trimmer.R
+import com.curvegraph.trimmer.utils.CommonMethod.getResizedBitmap
 import kotlinx.android.synthetic.main.adapter_videos.view.*
 import wseemann.media.FFmpegMediaMetadataRetriever
 import java.io.File
@@ -129,26 +130,7 @@ class VideosAdapter(private var items: List<String>, private val context: Activi
             }
         }
 
-        /**
-         * reduces the size of the image
-         * @param image
-         * @param maxSize
-         * @return
-         */
-        fun getResizedBitmap(image: Bitmap, maxSize: Int): Bitmap {
-            var width = image.width
-            var height = image.height
 
-            val bitmapRatio = width.toFloat() / height.toFloat()
-            if (bitmapRatio > 1) {
-                width = maxSize
-                height = (width / bitmapRatio).toInt()
-            } else {
-                height = maxSize
-                width = (height * bitmapRatio).toInt()
-            }
-            return Bitmap.createScaledBitmap(image, width, height, true)
-        }
 
         override fun onPostExecute(mediaItem: Bitmap?) {
             super.onPostExecute(mediaItem)

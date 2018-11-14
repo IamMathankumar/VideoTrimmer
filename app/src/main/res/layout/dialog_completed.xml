@@ -26,11 +26,7 @@
                 android:id="@+id/badgeIcon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
                 android:contentDescription="@string/app_name"
-                app:layout_constraintBottom_toTopOf="@+id/textContent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
@@ -45,7 +41,7 @@
                 android:layout_marginBottom="8dp"
                 android:gravity="center"
                 android:text="Video trimming completed"
-                app:layout_constraintBottom_toTopOf="@+id/actionPlay"
+                app:layout_constraintBottom_toTopOf="@+id/actionShare"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
@@ -65,11 +61,11 @@
                 android:textAllCaps="false"
                 android:textColor="@color/colorTextSecondary"
                 android:textSize="@dimen/dialog_button"
-                app:layout_constraintTop_toTopOf="@+id/actionPlay"
-                app:layout_constraintBottom_toBottomOf="@+id/actionPlay"
+                app:layout_constraintTop_toTopOf="@+id/actionShare"
+                app:layout_constraintBottom_toBottomOf="@+id/actionShare"
                 app:layout_constraintStart_toStartOf="parent" />
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/actionPlay"
+                android:id="@+id/actionShare"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/dialog_button_margin"
@@ -78,18 +74,17 @@
                 android:src="@drawable/ic_share"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_marginEnd="@dimen/dialog_button_margin"
-                app:layout_constraintEnd_toStartOf="@+id/actionShare"
+                app:layout_constraintEnd_toStartOf="@+id/actionPlay"
                 />
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/actionShare"
+                android:id="@+id/actionPlay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/dialogCardElevation"
                 android:layout_marginBottom="@dimen/dialog_button_margin"
                 app:maxImageSize="16dp"
                 android:backgroundTint="@color/colorPrimary"
-
                 android:src="@drawable/ic_play_arrow"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />

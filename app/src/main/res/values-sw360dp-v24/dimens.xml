@@ -12,8 +12,8 @@
 	<dimen name="folderSearchItemMargin">4.4dp</dimen>
 	<dimen name="folderSearchItemGoIcon">17.6dp</dimen>
 	<dimen name="dialogCardElevation">8.8dp</dimen>
-	<dimen name="dialog_width">220dp</dimen>
-	<dimen name="dialog_height">308dp</dimen>
+	<dimen name="dialog_width">308dp</dimen>
+	<dimen name="dialog_height">418dp</dimen>
 	<dimen name="dialog_button_margin">15.4dp</dimen>
 	<dimen name="dialog_fab_size">17.6dp</dimen>
 </resources>

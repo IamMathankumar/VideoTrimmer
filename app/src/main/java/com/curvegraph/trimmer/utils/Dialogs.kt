@@ -22,26 +22,22 @@ package com.curvegraph.trimmer.utils
 
 import android.app.Dialog
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Handler
-import android.support.v7.app.AppCompatActivity
-import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
-import android.widget.Toast
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.curvegraph.trimmer.R
-
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import java.lang.ref.WeakReference
+import kotlinx.android.synthetic.main.dialog_completed.*
 
 object Dialogs {
 
 
-
-    fun dialogInfoWrong(_A: Context) {
+    fun dialogTrimCompleted(_A: Context, bitmap: Bitmap, listener: DialogListener) {
         val dialog = Dialog(_A, R.style.NewDialog)
 
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -57,23 +53,35 @@ object Dialogs {
         dialog.setContentView(R.layout.dialog_completed)
         dialog.window!!.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         dialog.setCanceledOnTouchOutside(true)
+        Glide.with(_A).load(bitmap).thumbnail(0.2f).apply(RequestOptions().centerCrop()).into(dialog.badgeIcon)
+
+        dialog.actionShare.setOnClickListener {
+            listener.shareVideo()
+            dialog.dismiss()
+        }
+        dialog.actionPlay.setOnClickListener {
+            listener.playVideo()
+            dialog.dismiss()
+        }
+        dialog.actionSkip.setOnClickListener {
+            dialog.dismiss()
+            val handler = Handler()
+            handler.postDelayed({
+                //Do something after 100ms
+                listener.skipped()
+            }, 1000)
+
+        }
+
         dialog.show()
 
-        val handler = Handler()
-        handler.postDelayed({
-            //Do something after 100ms
-            dialog.dismiss()
-        }, 2000)
     }
 
 
     interface DialogListener {
-        fun nextLevel()
-
-        fun reload()
-
-        fun startTimer()
-        fun back()
+        fun skipped()
+        fun playVideo()
+        fun shareVideo()
     }
 
 }

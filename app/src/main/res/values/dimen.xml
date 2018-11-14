@@ -12,8 +12,8 @@
     <dimen name="videosIconCornerRadius">4dp</dimen>
 
     <dimen name="dialogCardElevation">8dp</dimen>
-    <dimen name="dialog_height">280dp</dimen>
-    <dimen name="dialog_width">200dp</dimen>
+    <dimen name="dialog_height">380dp</dimen>
+    <dimen name="dialog_width">280dp</dimen>
     <dimen name="dialog_button">20sp</dimen>
     <dimen name="dialog_button_margin">14dp</dimen>
     <dimen name="playerIconSize">24dp</dimen>
