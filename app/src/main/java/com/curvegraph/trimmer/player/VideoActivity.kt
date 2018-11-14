@@ -334,7 +334,14 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
     */
     private val list: ArrayList<MediaDescriptionCompat> = ArrayList()
     private fun loadVideos(): ArrayList<MediaDescriptionCompat> {
-        val folder: ModelFolder = intent.getParcelableExtra(CommonObject.intentVideosList)
+
+        var folderName = ""
+
+        if(null!=intent.getParcelableExtra(CommonObject.intentVideosList)){
+            val folder: ModelFolder = (intent.getParcelableExtra(CommonObject.intentVideosList))
+            folderName = folder.folderName
+        }
+
         //    val items: List<String> = folder.videoFiles
         inputUrl = intent.getStringExtra(CommonObject.intentVideo)
         timeLineBar.setLocalUrl(inputUrl)
@@ -345,7 +352,7 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
             // License - https://mango.blender.org/sharing/
             setMediaUri(Uri.parse(inputUrl))
             setTitle(inputUrl.substring(inputUrl.lastIndexOf("/") + 1))
-            setSubtitle(folder.folderName)
+            setSubtitle(folderName)
             build()
         })
 

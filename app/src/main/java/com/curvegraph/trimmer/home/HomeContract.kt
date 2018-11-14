@@ -26,6 +26,10 @@ interface HomeContract {
 
         fun showFoldersList(items: List<ModelFolder>)
 
+        fun showSearchList(items: List<String>)
+
+        fun hideSearchListView()
+
     }
 
 
@@ -36,6 +40,9 @@ interface HomeContract {
         fun dispose()
 
         fun itemClick(position: Int, context: Context)
+
+        fun searchItemClick(video: String, context: Context)
+        fun searchText(searchText: String)
     }
 
 }

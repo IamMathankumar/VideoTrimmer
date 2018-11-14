@@ -45,6 +45,7 @@ private lateinit var folder : ModelFolder
 
     override fun getVideoFoldersAndFiles( c : VideosActivity) {
         folder =  c.intent.getParcelableExtra<ModelFolder>(intentVideosList)
+        view.title(folder.folderNameDisplay)
         view.showFoldersList(folder.videoFiles)
         //   println("media hashset External storage: ${Environment.getExternalStorageDirectory().absolutePath}")
 

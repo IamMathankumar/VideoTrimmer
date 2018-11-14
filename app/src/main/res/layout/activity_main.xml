@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~
   ~  Copyright 2018 Mathankumar K. All rights reserved.
   ~
@@ -24,14 +23,62 @@
     tools:context=".home.HomeActivity">
 
 
-    <android.support.v7.widget.RecyclerView
+    <!-- Must be last for right layering display -->
+    <FrameLayout
+        android:id="@+id/toolbar_container"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary"
+            app:titleTextColor="#fff"
+            app:title="Folders"/>
+
+        <com.claudiodegio.msv.MaterialSearchView
+            android:id="@+id/searchView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="5dip" />
+    </FrameLayout>
+
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/listView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_container" />
+
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/listViewSearchCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:cardElevation="10dp"
+        app:layout_constraintLeft_toLeftOf="@+id/guidelineVertical"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_container">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/listViewSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/folderSearchItemMargin"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
+    </android.support.v7.widget.CardView>
+
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guidelineVertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.3" />
 
 </android.support.constraint.ConstraintLayout>

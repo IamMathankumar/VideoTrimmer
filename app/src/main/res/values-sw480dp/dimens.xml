@@ -9,4 +9,11 @@
 	<dimen name="videosIconCornerRadius">4.8dp</dimen>
 	<dimen name="playerIconSize">28.8dp</dimen>
 	<dimen name="trimDurationTextSize">8sp</dimen>
+	<dimen name="folderSearchItemMargin">4.8dp</dimen>
+	<dimen name="folderSearchItemGoIcon">19.2dp</dimen>
+	<dimen name="dialogCardElevation">9.6dp</dimen>
+	<dimen name="dialog_width">240dp</dimen>
+	<dimen name="dialog_height">336dp</dimen>
+	<dimen name="dialog_button_margin">16.8dp</dimen>
+	<dimen name="dialog_fab_size">19.2dp</dimen>
 </resources>

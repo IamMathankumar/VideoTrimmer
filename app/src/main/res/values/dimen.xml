@@ -3,19 +3,25 @@
     <dimen name="folderIconSize">36dp</dimen>
     <dimen name="folderTextMargin">4dp</dimen>
     <dimen name="folderItemMargin">8dp</dimen>
-
-
+    <dimen name="folderSearchItemMargin">4dp</dimen>
+    <dimen name="folderSearchItemGoIcon">16dp</dimen>
     <dimen name="videosIconSizeWidth">70dp</dimen>
     <dimen name="videosIconSizeHeight">50dp</dimen>
     <dimen name="videosClockPadding">4dp</dimen>
     <dimen name="videosIconElevation">8dp</dimen>
     <dimen name="videosIconCornerRadius">4dp</dimen>
 
-
+    <dimen name="dialogCardElevation">8dp</dimen>
+    <dimen name="dialog_height">280dp</dimen>
+    <dimen name="dialog_width">200dp</dimen>
+    <dimen name="dialog_button">20sp</dimen>
+    <dimen name="dialog_button_margin">14dp</dimen>
     <dimen name="playerIconSize">24dp</dimen>
-
+    <dimen name="dialog_fab_size">16dp</dimen>
     <dimen name="playerTrimFrameSize">40dp</dimen>
 
 
     <dimen name="trimDurationTextSize">8sp</dimen>
+    <color name="black_overlay">#66000000</color>
+    <color name="black_overlay_semi">#80000000</color>
 </resources>

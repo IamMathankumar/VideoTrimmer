@@ -5,13 +5,13 @@
     <color name="colorAccent">#D81B60</color>
     <color name="colorTextPrimary">#030033</color>
     <color name="colorTextSecondary">#494950</color>
-<color name="colorTextTerritory">#fff</color>
-
+    <color name="colorTextTerritory">#fff</color>
+    <color name="transperant">#00000000</color>
 
     <color name="playbackControlBackground">#CC000000</color>
     <color name="playTint">#cc63c866</color>
     <color name="pauseTint">#ccc76185</color>
     <color name="playerControlText">#cca2a2a2</color>
-
+    <color name="colorWhite">#fff</color>
 
 </resources>

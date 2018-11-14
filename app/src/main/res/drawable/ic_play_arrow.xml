@@ -1,0 +1,27 @@
+<!--
+  ~
+  ~  Copyright 2018 Mathankumar K. All rights reserved.
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  ~
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="512dp"
+    android:height="512dp"
+    android:viewportWidth="124.512"
+    android:viewportHeight="124.512">
+  <path
+      android:pathData="M113.956,57.006l-97.4,-56.2c-4,-2.3 -9,0.6 -9,5.2v112.5c0,4.6 5,7.5 9,5.2l97.4,-56.2C117.956,65.105 117.956,59.306 113.956,57.006z"
+      android:fillColor="#FFFFFF"/>
+</vector>

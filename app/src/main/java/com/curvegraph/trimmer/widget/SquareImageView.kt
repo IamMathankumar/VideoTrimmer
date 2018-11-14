@@ -15,27 +15,25 @@
  *  limitations under the License.
  *
  */
-package com.curvegraph.trimmer.videos
+package com.curvegraph.trimmer.widget
 
 import android.content.Context
+import android.support.v7.widget.AppCompatImageView
+import android.util.AttributeSet
 
-interface VideosContract {
 
-    /** Represents the View in MVP.  */
-    interface View {
-        fun showFoldersList(items: List<String>)
+class SquareImageView : AppCompatImageView {
 
-        fun title(title : String)
+    constructor(context: Context) : super(context)
+
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
+
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+
+        val height = measuredWidth
+        setMeasuredDimension(height, height)
     }
-
-
-    interface Presenter {
-
-        fun getVideoFoldersAndFiles(c : VideosActivity)
-
-        fun dispose()
-
-        fun itemClick(position: Int, context: Context)
-    }
-
 }

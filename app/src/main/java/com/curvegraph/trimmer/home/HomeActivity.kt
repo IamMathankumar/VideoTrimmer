@@ -17,16 +17,54 @@
  */
 package com.curvegraph.trimmer.home
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
+import android.view.View
+import com.claudiodegio.msv.OnSearchViewListener
 import com.curvegraph.trimmer.R
+import com.curvegraph.trimmer.player.VideoActivity
+import com.curvegraph.trimmer.utils.CommonObject
 import com.curvegraph.trimmer.utils.PermissionsHelper
 import kotlinx.android.synthetic.main.activity_main.*
 
-class HomeActivity : AppCompatActivity(), HomeContract.View, HomeAdapter.ItemClickListener {
+class HomeActivity : AppCompatActivity(), HomeContract.View, HomeAdapter.ItemClickListener, OnSearchViewListener, SearchAdapter.ItemClickListener {
+    override fun showSearchList(items: List<String>) {
+        listViewSearchCard.visibility = View.VISIBLE
+        searchdapter.addAllItems(items)
+
+    }
+
+    override fun hideSearchListView() {
+        listViewSearchCard.visibility = View.GONE
+    }
+
+    override fun onSearchItemClickListener(video: String) {
+       presenter.searchItemClick(video,this)
+    }
+
+    override fun onQueryTextSubmit(p0: String?): Boolean {
+        // handle text submit and then return true
+        return false;
+    }
+
+    override fun onSearchViewClosed() {
+        listViewSearchCard.visibility = View.GONE
+    }
+
+    override fun onQueryTextChange(p0: String?) {
+        presenter.searchText(p0!!)
+    }
+
+    override fun onSearchViewShown() {
+    }
+
+
     private lateinit var adapter: HomeAdapter
+    private lateinit var searchdapter: SearchAdapter
     override fun onItemClickListener(position: Int) {
         presenter.itemClick(position, this)
     }
@@ -36,6 +74,8 @@ class HomeActivity : AppCompatActivity(), HomeContract.View, HomeAdapter.ItemCli
         adapter = HomeAdapter(items, this, this)
         listView.adapter = adapter
 
+        searchdapter = SearchAdapter(this,this)
+        listViewSearch.adapter = searchdapter
     }
 
 
@@ -43,6 +83,9 @@ class HomeActivity : AppCompatActivity(), HomeContract.View, HomeAdapter.ItemCli
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         presenter = HomePresenter(this)
+        setSupportActionBar(toolbar)
+        searchView.setOnSearchViewListener(this); // this class implements OnSearchViewListener
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (PermissionsHelper.hasPermissions(this)) {
                 callMedia()
@@ -78,4 +121,13 @@ class HomeActivity : AppCompatActivity(), HomeContract.View, HomeAdapter.ItemCli
         presenter.getVideoFoldersAndFiles(this)
     }
 
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+
+        val item = menu.findItem(R.id.action_search)
+        searchView.setMenuItem(item)
+
+        return true
+    }
 }

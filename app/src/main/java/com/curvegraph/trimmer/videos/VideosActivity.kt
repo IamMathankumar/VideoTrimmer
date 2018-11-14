@@ -27,6 +27,10 @@ import com.curvegraph.trimmer.utils.PermissionsHelper
 import kotlinx.android.synthetic.main.activity_main.*
 
 class VideosActivity : AppCompatActivity(), VideosContract.View, VideosAdapter.ItemClickListener {
+    override fun title(title: String) {
+        toolbar.title = title
+    }
+
     private lateinit var adapter: VideosAdapter
     override fun onItemClickListener(position: Int) {
         presenter.itemClick(position, this)
@@ -43,6 +47,7 @@ class VideosActivity : AppCompatActivity(), VideosContract.View, VideosAdapter.I
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setSupportActionBar(toolbar)
         presenter = VideosPresenter(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (PermissionsHelper.hasPermissions(this)) {
