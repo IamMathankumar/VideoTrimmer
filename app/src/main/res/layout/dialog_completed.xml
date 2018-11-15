@@ -22,7 +22,7 @@
             android:layout_height="match_parent">
 
 
-            <com.curvegraph.trimmer.widget.SquareImageView
+            <com.curvegraph.deocut.widget.SquareImageView
                 android:id="@+id/badgeIcon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

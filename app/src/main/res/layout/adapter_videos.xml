@@ -73,7 +73,7 @@
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/title" />
 
-    <com.curvegraph.trimmer.widget.SquareImageViewHeight
+    <com.curvegraph.deocut.widget.SquareImageViewHeight
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="0dp"

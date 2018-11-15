@@ -31,11 +31,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:controller_layout_id="@layout/custom_playback_control_minimal"
-        app:default_artwork="@drawable/loading"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="20dp"
-        app:fastforward_increment="@integer/exoplayer_playback_fastforward_increment_ms"
-        app:rewind_increment="@integer/exoplayer_playback_rewind_increment_ms"
         app:show_timeout="@integer/exoplayer_show_control_timeout_ms"
         app:layout_constraintBottom_toTopOf="@+id/guideline3"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -129,8 +126,9 @@
     <com.curvegraph.frameselector.SelectFramesView
         android:id="@+id/timeLineBar"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="@+id/listView"
+        app:layout_constraintBottom_toBottomOf="@+id/listView"
         app:layout_constraintStart_toStartOf="@+id/listView"
         app:layout_constraintEnd_toEndOf="@+id/listView"/>
 
