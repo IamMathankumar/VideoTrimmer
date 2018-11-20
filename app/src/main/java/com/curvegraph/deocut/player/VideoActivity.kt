@@ -406,7 +406,7 @@ class VideoActivity : AppCompatActivity(), AnkoLogger, SelectView.OnMinMaxDurati
         val startingDuration: String = milliToString(timeLineBar.getMinDuration())
         val endingDuration: String = milliToString(timeLineBar.getMaxDuration() - timeLineBar.getMinDuration())
 
-        VideoTrimmer.overlay(this, inputUrl, outputFileDirectory(), startingDuration, endingDuration, this)
+        VideoTrimmer.trim(this, inputUrl, outputFileDirectory(), startingDuration, endingDuration, this)
     }
 
 

@@ -22,10 +22,14 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.curvegraph.deocut.R
+import com.curvegraph.deocut.VideoIconUtil
 import com.curvegraph.deocut.utils.PermissionsHelper
 import kotlinx.android.synthetic.main.activity_main.*
 
 class VideosActivity : AppCompatActivity(), VideosContract.View, VideosAdapter.ItemClickListener {
+
+
+
     override fun title(title: String) {
         toolbar.title = title
     }
@@ -37,9 +41,8 @@ class VideosActivity : AppCompatActivity(), VideosContract.View, VideosAdapter.I
 
     private lateinit var presenter: VideosPresenter
     override fun showFoldersList(items: List<String>) {
-        adapter = VideosAdapter(items, this, this)
+        adapter = VideosAdapter(items, this, listView, this)
         listView.adapter = adapter
-
     }
 
 
