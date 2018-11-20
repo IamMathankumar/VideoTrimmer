@@ -18,15 +18,15 @@
 
 package com.curvegraph.deocut.utils
 
+import android.content.ContentValues
 import android.content.Context
+import android.provider.MediaStore
 import com.curvegraph.deocut.interfaces.VideoTrimListener
 import com.github.hiteshsondhi88.libffmpeg.ExecuteBinaryResponseHandler
 import com.github.hiteshsondhi88.libffmpeg.FFmpeg
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import android.provider.MediaStore
-import android.content.ContentValues
 
 
 object VideoTrimmer {
@@ -53,12 +53,72 @@ object VideoTrimmer {
         commandList.add(start)
         commandList.add("-t")
         commandList.add(duration)
-        commandList.add("-async")
-        commandList.add("1")
-        commandList.add("-strict")
-        commandList.add("-2")
+        /* commandList.add("-async")
+         commandList.add("1")
+         commandList.add("-strict")
+         commandList.add("-2")*/
         commandList.add("-c")
         commandList.add("copy")
+        commandList.add(outputFile)
+        val command = commandList.toTypedArray()
+        try {
+            val tempOutFile = outputFile
+            FFmpeg.getInstance(context).execute(command, object : ExecuteBinaryResponseHandler() {
+
+                override fun onFailure(message: String?) {
+                    super.onFailure(message)
+                    File(outputFile).delete()
+                    callback.onFailed()
+                }
+
+                override fun onProgress(message: String?) {
+                    super.onProgress(message)
+
+                    println("Progress  : $message")
+                }
+
+                override fun onSuccess(s: String?) {
+                    callback.onFinishTrim(tempOutFile)
+                    addVideo(File(tempOutFile), outputName, context)
+                }
+
+                override fun onStart() {
+                    callback.onStartTrim()
+                }
+            })
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+    }
+
+
+    fun overlay(context: Context, inputFile: String, outputFileIs: String, start: String, duration: String, callback: VideoTrimListener) {
+        var outputFile = outputFileIs
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val outputName = "DeoCut_$timeStamp.mp4"
+        outputFile = "$outputFile/$outputName"
+        // val cmd = "-y -ss $start -i $inputFile -to $duration -strict -2 -c copy $outputFile"
+        // val cmd = "-y -ss $start -i $inputFile -to $duration -async 1 -strict -2 -c copy $outputFile"
+        /// ffmpeg -i movie.mp4 -ss 00:00:03 -t 00:00:08 -async 1 -c copy cut.mp4
+
+
+        // val cmd = " \"$inputFile\" -ss $start -t $duration -c copy $outputFile"
+
+        val commandList = LinkedList<String>()
+        commandList.add("-i")
+        commandList.add(inputFile)
+
+        commandList.add("-i")
+        commandList.add("/sdcard/Pictures/download.png")
+        commandList.add("-i")
+        commandList.add("/sdcard/Pictures/download.png")
+        commandList.add("-filter_complex")
+        commandList.add("[0][1]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2:enable='between(t,1.255,4.500)'[v1];[v1][2]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2:enable='between(t,5.255,10.500)'")
+        commandList.add("-codec:a")
+        commandList.add("copy")
+        commandList.add("-preset")
+        commandList.add("ultrafast")
         commandList.add(outputFile)
         val command = commandList.toTypedArray()
         try {

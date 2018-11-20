@@ -44,7 +44,7 @@ object PermissionsHelper {
      * Check to see we have the necessary permissions for this app, and ask for them if we don't.
      */
     fun requestPermissions(activity: Activity) {
-        activity.requestPermissions(arrayOf(WRITE_EXTERNAL_STORAGE_PERMISSION, READ_EXTERNAL_STORAGE),
+        activity.requestPermissions(arrayOf(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE_PERMISSION),
                 GRANT_REQUEST_CODE)
     }
 

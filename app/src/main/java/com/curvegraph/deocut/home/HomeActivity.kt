@@ -82,16 +82,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View, HomeAdapter.ItemCli
         presenter = HomePresenter(this)
         setSupportActionBar(toolbar)
         searchView.setOnSearchViewListener(this); // this class implements OnSearchViewListener
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (PermissionsHelper.hasPermissions(this)) {
-                callMedia()
-            } else {
-                PermissionsHelper.requestPermissions(this)
-            }
-        } else {
-            callMedia()
-        }
+        getVideosFromDevice()
 
     }
 
@@ -114,9 +105,24 @@ class HomeActivity : AppCompatActivity(), HomeContract.View, HomeAdapter.ItemCli
 
     }
 
+
+    private fun getVideosFromDevice(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (PermissionsHelper.hasPermissions(this)) {
+                callMedia()
+            } else {
+                PermissionsHelper.requestPermissions(this)
+            }
+        } else {
+            callMedia()
+        }
+
+    }
+
+
     override fun onResume() {
         super.onResume()
-        presenter.getVideoFoldersAndFiles(this)
+        getVideosFromDevice()
     }
 
     private fun callMedia() {
